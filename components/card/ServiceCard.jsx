@@ -7,6 +7,7 @@ export default function ServiceCard({
   profilePhoto,
   name,
   stars,
+  aboutYourself
 }) {
  
   
@@ -23,8 +24,8 @@ export default function ServiceCard({
 
       <div className="flex flex-col items-center text-center mt-4">
         <p className="text-xl font-bold my-1">{name}</p>
-        <p className="text-sm">
-          <span className="font-semibold text-xl"></span> Starting Price <span>|</span>
+        <p className="text-sm px-3">
+          <span className=" text-sm"> {aboutYourself}</span>  <span></span>
         </p>
 
         <div className="h-5 flex">

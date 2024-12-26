@@ -349,7 +349,7 @@ export default function Home() {
         </div>
         <div className='bg-gradient-to-r w-[100vw]  from-white to-white'>
           <Slider {...settings2}>
-            {freelancer.map(({ _id, profilePhoto, name, startingPrice, stars, freelancerDetails }) => {
+            {freelancer.map(({ _id, profilePhoto, name, startingPrice, stars, freelancerDetails, aboutYourself }) => {
               return (
                 <>
                   <Link href={`/freelancer/${_id}`} className="">
@@ -360,7 +360,7 @@ export default function Home() {
 
                       <div className='flex flex-col items-center text-center mt-4'>
                         <p className='text-xl font-bold my-1'>{name}</p>
-                        <p className='text-sm'> <span className='font-semibold text-xl'> ₹ </span > Starting Price  </p>
+                        <p className='text-sm mx-3'> <span className=' text-sm'> {aboutYourself} </span >  </p>
 
                         <div className='h-5 flex'>
                           {Array(5).fill(0).map((_, index) => (

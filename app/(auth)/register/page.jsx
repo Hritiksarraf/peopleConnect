@@ -31,7 +31,7 @@ export default function Page() {
         password: "",
         profilePhoto: null,
         aboutYourself: "",
-        role:''
+        role: ''
     });
 
     const [formErrors, setFormErrors] = useState({});
@@ -141,14 +141,16 @@ export default function Page() {
     };
 
 
-
-
     const handleRegister = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
+    
         if (!isTermsAccepted) {
             alert("You must accept the Terms and Conditions to proceed.");
             return;
         }
+    
+        setLoading(true); // Start loading
+    
         try {
             // Step 1: Handle profile photo upload to Cloudinary
             let profilePhotoUrl = "";
@@ -157,12 +159,12 @@ export default function Page() {
                 imgData.append("file", formData.profilePhoto);
                 imgData.append("upload_preset", "social");
                 imgData.append("cloud_name", "hritiksarraf");
-
+    
                 const imgResponse = await fetch("https://api.cloudinary.com/v1_1/hritiksarraf/image/upload", {
                     method: "POST",
                     body: imgData,
                 });
-
+    
                 if (imgResponse.ok) {
                     const imgResult = await imgResponse.json();
                     profilePhotoUrl = imgResult.url; // Get the URL from Cloudinary response
@@ -170,13 +172,15 @@ export default function Page() {
                     throw new Error("Image upload failed");
                 }
             }
+    
             const payload = {
                 ...formData,
                 profilePhoto: profilePhotoUrl,
                 skills,
-                interest:Intrest,
+                interest: Intrest,
                 isTermsAccepted: true,
             };
+    
             const res = await fetch("/api/register", {
                 method: "POST",
                 headers: {
@@ -184,14 +188,16 @@ export default function Page() {
                 },
                 body: JSON.stringify(payload),
             });
+    
             const response = await res.json();
-            setLoading(false);
+    
             if (response.success) {
                 toast.success("Signup Successful", {
                     position: "top-left",
                     autoClose: 5000,
                     theme: "light",
                 });
+    
                 setTimeout(() => {
                     router.push("/log-in");
                 }, 2000);
@@ -208,9 +214,11 @@ export default function Page() {
                 autoClose: 5000,
                 theme: "light",
             });
+        } finally {
+            setLoading(false); // Stop loading
         }
     };
-
+    
 
 
 
@@ -559,105 +567,115 @@ export default function Page() {
                     <section>
                         {/* this is profile section */}
                         <section className="bg-gradient-to-b min-h-[100vh] from-white py-5 to-yellow-200">
-    <div className="flex flex-col items-center my-auto justify-center px-6 py-8 mx-auto lg:py-0">
-        <Link href="/" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-            <Image className="mr-2" src="/assets/logo-light.png" width={150} height={50} alt="fotodukaan logo" />
-        </Link>
-        <div className="w-full rounded-lg shadow dark:border dark:border-gray-700 md:mt-0 text-black sm:max-w-md xl:p-0 bg-gradient-to-r from-white to-white">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-black">
-                    Set Up Your Profile
-                </h1>
-                <form className="space-y-4 md:space-y-6" onSubmit={handleRegister}>
-                    {/* Profile Photo */}
-                    <div>
-                        <label htmlFor="profile-photo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-                            Profile Photo
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            name="profilePhoto"
-                            id="profile-photo"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                            onChange={handleInputChange}
-                            required
-                        />
-                        {formErrors.profilePhoto && <p className="text-red-500 text-sm">{formErrors.profilePhoto}</p>}
-                    </div>
+                            <div className="flex flex-col items-center my-auto justify-center px-6 py-8 mx-auto lg:py-0">
+                                <Link href="/" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+                                    <Image className="mr-2" src="/assets/logo-light.png" width={150} height={50} alt="fotodukaan logo" />
+                                </Link>
+                                <div className="w-full rounded-lg shadow dark:border dark:border-gray-700 md:mt-0 text-black sm:max-w-md xl:p-0 bg-gradient-to-r from-white to-white">
+                                    <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+                                        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-black">
+                                            Set Up Your Profile
+                                        </h1>
+                                        <form className="space-y-4 md:space-y-6" onSubmit={handleRegister}>
+                                            {/* Profile Photo */}
+                                            <div>
+                                                <label htmlFor="profile-photo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
+                                                    Profile Photo
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    name="profilePhoto"
+                                                    id="profile-photo"
+                                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+                                                {formErrors.profilePhoto && <p className="text-red-500 text-sm">{formErrors.profilePhoto}</p>}
+                                            </div>
 
-                    {/* About Yourself */}
-                    <div>
-                        <label htmlFor="about-yourself" className="block mb-2 text-sm font-medium text-black dark:text-black">
-                            About Yourself
-                        </label>
-                        <textarea
-                            name="aboutYourself"
-                            id="about-yourself"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                            placeholder="Write a few sentences about yourself"
-                            rows="4"
-                            onChange={handleInputChange}
-                            value={formData.aboutYourself}
-                            required
-                        ></textarea>
-                        {formErrors.aboutYourself && <p className="text-red-500 text-sm">{formErrors.aboutYourself}</p>}
-                    </div>
+                                            {/* About Yourself */}
+                                            <div>
+                                                <label htmlFor="about-yourself" className="block mb-2 text-sm font-medium text-black dark:text-black">
+                                                    About Yourself
+                                                </label>
+                                                <textarea
+                                                    name="aboutYourself"
+                                                    id="about-yourself"
+                                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                                                    placeholder="Write a few sentences about yourself"
+                                                    rows="4"
+                                                    onChange={handleInputChange}
+                                                    value={formData.aboutYourself}
+                                                    required
+                                                ></textarea>
+                                                {formErrors.aboutYourself && <p className="text-red-500 text-sm">{formErrors.aboutYourself}</p>}
+                                            </div>
 
-                    {/* Role Selection */}
-                    <div>
-                        <label htmlFor="role" className="block mb-2 text-sm font-medium text-black dark:text-black">
-                            Role
-                        </label>
-                        <select
-                            name="role"
-                            id="role"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                            onChange={handleInputChange}
-                            value={formData.role}
-                            required
-                        >
-                            <option value="" disabled>Select your role</option>
-                            <option value="mentor">Mentor</option>
-                            <option value="mentee">Mentee</option>
-                        </select>
-                        {formErrors.role && <p className="text-red-500 text-sm">{formErrors.role}</p>}
-                    </div>
+                                            {/* Role Selection */}
+                                            <div>
+                                                <label htmlFor="role" className="block mb-2 text-sm font-medium text-black dark:text-black">
+                                                    Role
+                                                </label>
+                                                <select
+                                                    name="role"
+                                                    id="role"
+                                                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
+                                                    onChange={handleInputChange}
+                                                    value={formData.role}
+                                                    required
+                                                >
+                                                    <option value="" disabled>Select your role</option>
+                                                    <option value="mentor">Mentor</option>
+                                                    <option value="mentee">Mentee</option>
+                                                </select>
+                                                {formErrors.role && <p className="text-red-500 text-sm">{formErrors.role}</p>}
+                                            </div>
 
-                    {/* Terms and Conditions */}
-                    <div>
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            checked={isTermsAccepted}
-                            onChange={(e) => setIsTermsAccepted(e.target.checked)}
-                        />
-                        <label htmlFor="terms">
-                            I accept the <a className='text-blue-500' href="https://drive.google.com/file/d/1hyvhQeo9hE7DqvGILuvkREfYSjG1IHcd/view?usp=drive_link" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>
-                        </label>
-                    </div>
+                                            {/* Terms and Conditions */}
+                                            <div>
+                                                <input
+                                                    type="checkbox"
+                                                    id="terms"
+                                                    checked={isTermsAccepted}
+                                                    onChange={(e) => setIsTermsAccepted(e.target.checked)}
+                                                />
+                                                <label htmlFor="terms">
+                                                    I accept the <a className='text-blue-500' href="#" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>
+                                                </label>
+                                            </div>
 
-                    {/* Buttons */}
-                    <div className="flex gap-4">
-                        <button
-                            onClick={() => setStep((prevState) => ({ ...prevState, currentStep: 2 }))}
-                            type="button"
-                            className="w-full text-white bg-blue-400 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                        >
-                            Back
-                        </button>
-                        <button
-                            type="submit"
-                            className="w-full text-white bg-blue-400 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                        >
-                            Sign-Up
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
+                                            {/* Buttons */}
+                                            <div className="flex gap-4">
+                                                <button
+                                                    onClick={() => setStep((prevState) => ({ ...prevState, currentStep: 2 }))}
+                                                    type="button"
+                                                    className="w-full text-white bg-blue-400 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                                >
+                                                    Back
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className={`w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-400 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                                        }`}
+                                                    disabled={loading} // Disable button while loading
+                                                >
+                                                    {loading ? (
+                                                        <div className="flex items-center justify-center gap-2">
+                                                            <CgSpinner className="animate-spin" size={20} />
+                                                            <span>Loading...</span>
+                                                        </div>
+                                                    ) : (
+                                                        "Sign-Up"
+                                                    )}
+                                                </button>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
 
                     </section>
                 )}

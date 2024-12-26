@@ -26,6 +26,7 @@ export const POST = async (req) => {
         { status: 400 }
       );
     }
+    const encryptedPassword = CryptoJS.AES.encrypt(password, "fotoDukaan@Mani2003").toString();
 
     // Create new freelancer instance
     let f = new Freelancer({
