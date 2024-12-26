@@ -1,21 +1,21 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation'; // To get query params
-import ServiceCard from '@/components/card/ServiceCard';
-import SearchBar from '@/components/searchBar/SearchBar';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
+"use client";
 
-export default function Page() {
-  const searchParams = useSearchParams(); // Access query params
-  const interest = searchParams.get('interest') || ''; // Get interest
-  const skills = searchParams.get('skills') || ''; // Get skills
+import React, { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import ServiceCard from "@/components/card/ServiceCard";
+import SearchBar from "@/components/searchBar/SearchBar";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
-  const [data, setData] = useState([]); // Store freelancers data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+function FreelancerPage() {
+  const searchParams = useSearchParams();
+  const interest = searchParams.get("interest") || "";
+  const skills = searchParams.get("skills") || "";
 
-  // Decode the query params for displaying on the webpage
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const decodedInterest = decodeURIComponent(interest);
   const decodedSkills = decodeURIComponent(skills);
 
@@ -23,43 +23,30 @@ export default function Page() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Construct the API endpoint with conditionally included query params
-        let apiUrl = '/api/freelancer/type?';
-        
-        // Append interest and/or skills if they are available
-        if (interest) {
-          apiUrl += `interest=${encodeURIComponent(interest)}&`;
-        }
-        if (skills) {
-          apiUrl += `skills=${encodeURIComponent(skills)}&`;
-        }
+        let apiUrl = "/api/freelancer/type?";
+        if (interest) apiUrl += `interest=${encodeURIComponent(interest)}&`;
+        if (skills) apiUrl += `skills=${encodeURIComponent(skills)}&`;
+        apiUrl = apiUrl.endsWith("&") ? apiUrl.slice(0, -1) : apiUrl;
 
-        // Remove trailing '&' from the URL if present
-        apiUrl = apiUrl.endsWith('&') ? apiUrl.slice(0, -1) : apiUrl;
-
-        // Fetch data from your API
         const response = await fetch(apiUrl);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
 
         const result = await response.json();
-        setData(result); // Update state with data
+        setData(result);
       } catch (err) {
-        setError(err.message); // Set error state
+        setError(err.message);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [interest, skills]); // Re-fetch when query params change
+  }, [interest, skills]);
 
   if (loading) {
     return (
       <div className="min-h-[80vh] w-[100vw]">
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: "flex" }}>
           <div className="pt-80 flex items-center justify-center text-center mx-auto">
             <CircularProgress color="inherit" size="8rem" />
           </div>
@@ -88,7 +75,7 @@ export default function Page() {
       ) : (
         <>
           <p className="text-center font-bold text-2xl md:text-5xl my-10">
-            Mentor for{' '}
+            Mentor for{" "}
             <span className="text-blue-600">
               {decodedInterest || decodedSkills}
             </span>
@@ -101,5 +88,13 @@ export default function Page() {
         </>
       )}
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="min-h-[80vh] w-[100vw] flex items-center justify-center"><CircularProgress size="4rem" /></div>}>
+      <FreelancerPage />
+    </Suspense>
   );
 }
